@@ -1,2 +1,65 @@
 # one-state-helper-akademi
 ONE STATE HELPER EĞİTİM AKADEMİSİ
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONE STATE | Helper Eğitim Akademisi</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;background:#101010;color:#fff;
+ font-family:Arial,sans-serif;display:flex;align-items:center;
+ justify-content:center;padding:20px
+}
+.container{
+ width:100%;max-width:420px;background:#1b1b1b;
+ border:1px solid #393225;border-radius:18px;
+ padding:30px 24px;text-align:center;
+ box-shadow:0 15px 45px #0008
+}
+.logo{font-size:42px;margin-bottom:10px}
+h1{font-size:23px;color:#d8b45a;margin:8px 0}
+.subtitle{color:#aaa;font-size:13px;line-height:1.6;margin-bottom:28px}
+input{
+ width:100%;padding:15px;margin:8px 0;
+ border:1px solid #444;background:#111;color:white;
+ border-radius:9px;font-size:15px
+}
+button{
+ width:100%;padding:15px;margin-top:15px;
+ background:#c6a34e;color:#111;border:0;
+ border-radius:9px;font-weight:bold;font-size:15px
+}
+.note{color:#888;font-size:12px;margin-top:22px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="container">
+ <div class="logo">⭐</div>
+ <h1>ONE STATE TR</h1>
+ <h2>HELPER EĞİTİM AKADEMİSİ</h2>
+ <p class="subtitle">
+  Yönetim ve Helper eğitim platformuna hoş geldiniz.
+  Devam etmek için hesabınızla giriş yapın.
+ </p>
+ <form id="loginForm">
+  <input type="email" placeholder="E-posta adresiniz" required>
+  <input type="password" placeholder="Şifreniz" required>
+  <button type="submit">GİRİŞ YAP</button>
+ </form>
+ <p class="note">
+  Hesabınız yoksa eğitim başvurusu için yönetim onayını bekleyin.
+  <br>ONE STATE HELPER EĞİTİM AKADEMİSİ
+ </p>
+</div>
+<script>
+document.getElementById("loginForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ alert("Giriş sistemi henüz bağlanmadı. Kurulum devam ediyor.");
+});
+</script>
+</body>
+</html>
