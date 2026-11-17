@@ -1,443 +1,48 @@
-
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ONE STATE | Helper Eğitim Akademisi</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090a0c"><title>ONE STATE HELPER EĞİTİM AKADEMİSİ</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--gold:#d2ad58;--bg:#101114;--panel:#191b20;--line:#30333b;--muted:#a3a6af}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:#f5f5f5;font-family:Arial,sans-serif}
-button,input{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}
-.login{width:100%;max-width:420px;background:var(--panel);border:1px solid #66532f;border-radius:18px;padding:30px;text-align:center}
-.logo{font-size:38px;color:var(--gold)}
-h1{font-size:21px;color:var(--gold);margin:12px 0}
-.login p{color:var(--muted);font-size:13px;line-height:1.6}
-input{width:100%;padding:14px;margin:8px 0;background:#101114;color:white;border:1px solid var(--line);border-radius:8px}
-.gold{background:var(--gold);color:#17130b;border:0;padding:13px 17px;border-radius:8px;font-weight:bold}
-.login .gold{width:100%;margin-top:12px}
-.message{padding:12px;background:#292b31;border-radius:8px;margin-top:12px;font-size:13px;overflow-wrap:anywhere}
-.layout{display:flex;min-height:100vh}
-.sidebar{width:255px;flex-shrink:0;background:#17191e;border-right:1px solid var(--line);padding:20px 13px}
-.brand{font-weight:bold;color:var(--gold);font-size:16px;padding:8px 10px 20px;line-height:1.5}
-.nav-title{font-size:10px;color:#858995;padding:14px 10px 7px;letter-spacing:1px}
-.nav button{display:block;width:100%;text-align:left;background:transparent;border:0;color:#d5d6da;padding:12px 10px;border-radius:7px;margin:2px 0;font-size:13px}
-.nav button.active,.nav button:hover{background:#34302a;color:var(--gold)}
-.main{flex:1;min-width:0}
-.topbar{height:65px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#17191e;gap:10px}
-.topbar strong{color:var(--gold);font-size:13px}
-.content{padding:25px;max-width:1250px;margin:auto}
-.page-title{font-size:23px;margin:0 0 7px}
-.sub{color:var(--muted);font-size:13px;margin-bottom:22px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:18px 0}
-.card,.section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:15px}
-.card small{color:var(--muted)}
-.card h2{font-size:26px;color:var(--gold);margin:12px 0 0}
-.section h3{font-size:16px;margin:0 0 14px;color:var(--gold)}
-.table-wrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:13px}
-td,th{border-bottom:1px solid var(--line);padding:12px 10px;text-align:left;vertical-align:top}
-th{color:var(--gold);font-weight:bold}
-td{color:#e1e1e1;overflow-wrap:anywhere}
-.action{border:1px solid var(--line);background:#252830;color:white;border-radius:6px;padding:8px 10px;margin:2px;font-size:12px}
-.action.approve{background:#315b40;border-color:#477b59}
-.action.reject{background:#6a3434;border-color:#874747}
-.muted{color:var(--muted)}
-.status{padding:4px 8px;border-radius:20px;background:#34302a;color:var(--gold);font-size:11px}
-.notice{padding:14px;background:#27251f;border:1px solid #65532f;border-radius:9px;font-size:13px;line-height:1.6}
-.mobile-menu{display:none}
-@media(max-width:760px){
- .layout{display:block}
- .sidebar{width:100%;border-right:0;border-bottom:1px solid var(--line);padding:10px}
- .brand{padding:8px}
- .nav{display:flex;overflow-x:auto;gap:5px}
- .nav-title{display:none}
- .nav button{white-space:nowrap;width:auto;flex-shrink:0}
- .content{padding:16px}
- .topbar{padding:0 14px}
-}
-</style>
-</head>
-<body>
-
-<section id="loginScreen" class="login-wrap">
- <div class="login">
-  <div class="logo">★</div>
-  <h1>ONE STATE TR</h1>
-  <h2>HELPER EĞİTİM AKADEMİSİ</h2>
-  <p>Öğrenci ve yönetim giriş ekranı</p>
-  <form id="loginForm">
-   <input id="email" type="email" placeholder="E-posta adresiniz" required>
-   <input id="password" type="password" placeholder="Şifreniz" required>
-   <button id="loginButton" class="gold" type="submit">GİRİŞ YAP</button>
-  </form>
-  <div id="loginMessage" class="message hidden"></div>
-  <p>Yetkisiz erişim engellenmiştir. Eğitim erişimi yönetim onayına bağlıdır.</p>
- </div>
-</section>
-
-<div id="app" class="layout hidden">
- <aside class="sidebar">
-  <div class="brand">★ ONE STATE TR<br>HELPER AKADEMİSİ</div>
-  <div class="nav-title">AKADEMİ</div>
-  <nav id="studentNav" class="nav"></nav>
-  <div class="nav-title">YÖNETİM PANELİ</div>
-  <nav id="managementNav" class="nav"></nav>
- </aside>
- <main class="main">
-  <header class="topbar">
-   <strong id="userLabel">ONE STATE AKADEMİ</strong>
-   <button id="logoutButton" class="action">Çıkış Yap</button>
-  </header>
-  <div class="content">
-   <h1 id="pageTitle" class="page-title">Ana Sayfa</h1>
-   <div id="pageSub" class="sub">Eğitim platformuna hoş geldiniz.</div>
-   <div id="pageContent"></div>
-  </div>
- </main>
-</div>
-
+:root{--bg:#090a0c;--panel:#141619;--panel2:#1a1d20;--line:#34383c;--gold:#e0b83f;--gold2:#a98222;--muted:#aeb1b5;--white:#f5f5f2;--green:#66c28b;--red:#e47a7a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font:15px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}.shell{max-width:1200px;margin:auto;padding:0 18px}.top{position:sticky;top:0;z-index:5;background:#0c0d0ff2;backdrop-filter:blur(12px);border-bottom:1px solid #292c30}.topin{height:68px;display:flex;align-items:center;gap:14px}.brand{font-weight:900;letter-spacing:1.3px;color:var(--gold);white-space:nowrap}.brand small{display:block;font-size:10px;letter-spacing:2px;color:#ddd}.search{flex:1;max-width:440px;margin-left:auto}.field{width:100%;background:#0d0f11;border:1px solid var(--line);border-radius:9px;color:white;padding:11px 13px;outline:none}.field:focus{border-color:var(--gold)}.btn{border:1px solid var(--gold2);background:linear-gradient(180deg,#edca5c,#bd922a);color:#17130a;font-weight:800;border-radius:8px;padding:10px 15px}.btn.ghost{background:#17191c;color:var(--gold);border-color:#4b4128}.btn.danger{background:#512c2c;color:#fff;border-color:#774}.tabs{display:flex;gap:6px;overflow:auto;padding:10px 0 12px;scrollbar-width:thin}.tab{white-space:nowrap;border:1px solid transparent;background:transparent;color:#ddd;padding:8px 12px;border-radius:7px}.tab.active,.tab:hover{border-color:#5a4820;color:var(--gold);background:#211d13}.hero{padding:28px 0 18px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px;font-weight:800}.hero h1{font-size:clamp(24px,4vw,36px);line-height:1.15;margin:7px 0}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.tile{background:linear-gradient(145deg,#171a1d,#101214);border:1px solid #383c40;border-radius:15px;min-height:158px;padding:20px 14px;text-align:center;color:var(--white);transition:.18s}.tile:hover{border-color:var(--gold2);transform:translateY(-2px)}.ico{font-size:30px;color:var(--gold);line-height:1.2;margin-bottom:13px}.tile strong{display:block;font-size:17px;margin-bottom:6px}.tile span{display:block;color:#b8bbc0;font-size:13px;max-width:230px;margin:auto}.slogan{text-align:center;color:var(--gold);letter-spacing:2px;font-weight:900;padding:27px 0 35px;font-size:13px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px;margin:14px 0}.panel h2,.panel h3{margin:0 0 13px}.panel h2{font-size:20px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:11px}.stat{background:#101214;border:1px solid #34383c;border-radius:10px;padding:14px}.stat b{display:block;color:var(--gold);font-size:25px}.stat small{color:var(--muted)}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{min-width:0}.grow{flex:1}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:11px;border-bottom:1px solid #34383c;vertical-align:top}th{color:var(--gold)}.pill{display:inline-block;border:1px solid #61502a;color:var(--gold);border-radius:30px;padding:3px 9px;font-size:11px}.notice{border-left:3px solid var(--gold);background:#211e16;padding:12px;border-radius:6px;color:#ddd;margin:10px 0}.loginbg{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at 50% 0,#292113 0,transparent 50%),var(--bg)}.loginbox{width:min(100%,420px);background:#141619;border:1px solid #655127;border-radius:17px;padding:25px;box-shadow:0 20px 70px #0009}.loginbox h1{color:var(--gold);text-align:center;font-size:22px}.loginbox p{text-align:center;color:var(--muted);font-size:13px}.loginbox .field{margin:6px 0 10px}.loginbox .btn{width:100%;margin-top:10px}.switch{display:flex;gap:6px;background:#0d0f11;border:1px solid #34383c;padding:5px;border-radius:9px}.switch button{flex:1;background:transparent;border:0;color:#bbb;padding:8px;border-radius:6px}.switch button.active{background:#332a17;color:var(--gold)}.content{padding:18px 0 40px}.back{color:var(--gold);background:none;border:0;padding:0 0 10px}.empty{color:var(--muted);padding:15px 0}.foot{border-top:1px solid #292c30;text-align:center;color:#777;padding:20px;font-size:11px}.hamb{display:none}
+@media(max-width:640px){.shell{padding:0 12px}.topin{height:60px}.brand{font-size:13px}.search{max-width:130px}.search .field{padding:9px;font-size:12px}.tabs{padding:8px 0}.tab{font-size:12px;padding:7px 9px}.grid{gap:9px}.tile{min-height:145px;padding:17px 8px}.tile strong{font-size:15px}.tile span{font-size:12px}.ico{font-size:27px}.hero{padding-top:22px}.slogan{font-size:10px;letter-spacing:1px}.panel{padding:13px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head><body>
+<div id="login" class="loginbg"><div class="loginbox"><div class="eyebrow" style="text-align:center">ONE STATE TR</div><h1>HELPER EĞİTİM AKADEMİSİ</h1><p>ÖĞREN · GELİŞTİR · GÖREVİNİ YERİNE GETİR</p><div class="switch"><button id="studentMode" class="active" type="button">Öğrenci</button><button id="adminMode" type="button">Yetkili</button></div><form id="loginForm"><label id="nameLabel" class="muted">Helper adınız (Örn. Helper Nexus)</label><input id="displayName" class="field" placeholder="Helper Nexus"><label class="muted">E-posta</label><input id="email" class="field" type="email" required placeholder="E-posta adresiniz"><label class="muted">Şifre</label><input id="password" class="field" type="password" required placeholder="Şifreniz"><button id="loginBtn" class="btn">GİRİŞ YAP</button></form><div class="row" style="justify-content:space-between;margin-top:12px"><button id="forgot" class="back">Şifremi unuttum</button><button id="applyMode" class="back">Başvuru gönder</button></div><div id="loginMsg" class="notice hidden"></div><p style="font-size:11px">Öğrenci erişimi yönetim onayından sonra açılır.</p></div></div>
+<div id="site" class="hidden"><header class="top"><div class="shell"><div class="topin"><div class="brand">ONE STATE TR<small>HELPER EĞİTİM AKADEMİSİ</small></div><div class="search"><input id="search" class="field" placeholder="Eğitimlerde ara..."></div><button id="logout" class="btn ghost">Çıkış</button></div><nav id="nav" class="tabs"></nav></div></header><main class="shell"><section id="home" class="hero"><div class="eyebrow">EĞİTİM PLATFORMU</div><h1 id="welcome">ÖĞREN · GELİŞTİR · GÖREVİNİ YERİNE GETİR</h1><div class="muted" id="roleline"></div></section><section id="content" class="content"></section><div class="slogan">✦ ÖĞREN · GELİŞTİR · GÖREVİNİ YERİNE GETİR ✦</div></main><footer class="foot">ONE STATE HELPER EĞİTİM AKADEMİSİ</footer></div>
 <script>
-const SUPABASE_URL="https://ijnuygaxmucnyquxhqas.supabase.co";
-const SUPABASE_KEY="sb_publishable_JpkrdGNV9ki--h4ET92aRA_eIH_hIOL";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-let currentUser=null;
-let currentProfile=null;
-let currentRole="";
-let currentPage="Ana Sayfa";
-
-const studentItems=[
- "Ana Sayfa","Helper Eğitimleri","Admin Paneli Kullanımı","Komutlar",
- "Makrolar","Sunucu Kuralları","Ceza Rehberi","Bilet Yönetimi",
- "Video Anlatımları","Görsel Eğitimler","Sınavlar","Eğitim Takibim",
- "Duyurular","Profilim"
-];
-
-const managementItems=[
- "Genel Bakış","Başvuru Yönetimi","Üye Yönetimi","Eğitim İçerik Yönetimi",
- "Eğitim Takibi","Video Yönetimi","Sınav Yönetimi","Rol ve Yetki Yönetimi",
- "Raporlama","Duyuru Yönetimi","Sertifika Yönetimi",
- "Yönetim İşlem Geçmişi","Sistem Ayarları"
-];
-
-const descriptions={
- "Ana Sayfa":"Akademi öğrenci ekranı.",
- "Helper Eğitimleri":"Yayınlanmış eğitim içerikleri.",
- "Admin Paneli Kullanımı":"Yönetici paneli eğitimleri.",
- "Komutlar":"Komut eğitimleri.",
- "Makrolar":"Makro eğitimleri.",
- "Sunucu Kuralları":"Sunucu kuralları ve bilgilendirmeler.",
- "Ceza Rehberi":"Ceza rehberi eğitimleri.",
- "Bilet Yönetimi":"Bilet yönetimi eğitimleri.",
- "Video Anlatımları":"Eğitim videoları.",
- "Görsel Eğitimler":"Görsel eğitim materyalleri.",
- "Sınavlar":"Eğitim sınavları.",
- "Eğitim Takibim":"Kişisel eğitim ilerlemeniz.",
- "Duyurular":"Akademi duyuruları.",
- "Profilim":"Hesap bilgileriniz.",
- "Genel Bakış":"Yönetim paneli genel görünümü.",
- "Başvuru Yönetimi":"Öğrenci başvurularını inceleyin.",
- "Üye Yönetimi":"Akademi üyeleri.",
- "Eğitim İçerik Yönetimi":"Eğitim içeriklerinin yönetimi.",
- "Eğitim Takibi":"Öğrencilerin ilerleme kayıtları.",
- "Video Yönetimi":"Eğitim video kayıtları.",
- "Sınav Yönetimi":"Sınav ve soru yönetimi.",
- "Rol ve Yetki Yönetimi":"Hesap rolleri ve yetkileri.",
- "Raporlama":"Akademi faaliyet kayıtları.",
- "Duyuru Yönetimi":"Akademi duyuruları.",
- "Sertifika Yönetimi":"Sertifika işlemleri.",
- "Yönetim İşlem Geçmişi":"Yönetim işlem kayıtları.",
- "Sistem Ayarları":"Akademi sistem bilgileri."
-};
-
-function el(id){return document.getElementById(id)}
-function safe(value){
- if(value===null||value===undefined)return "—";
- if(typeof value==="object")return JSON.stringify(value);
- return String(value);
-}
-function showMessage(target,text){
- el(target).textContent=text;
- el(target).classList.remove("hidden");
-}
-function isFullManagement(){
- return currentRole==="CM"||currentRole==="Responsible Admin";
-}
-function isManagement(){
- return ["CM","Responsible Admin","Administrator"].includes(currentRole);
-}
-function makeNav(){
- el("studentNav").innerHTML="";
- el("managementNav").innerHTML="";
- studentItems.forEach(item=>addNav("studentNav",item));
- if(isManagement())managementItems.forEach(item=>addNav("managementNav",item));
-}
-function addNav(id,item){
- const b=document.createElement("button");
- b.textContent=item;
- b.className=item===currentPage?"active":"";
- b.onclick=()=>openPage(item);
- el(id).appendChild(b);
-}
-function setPage(title,sub){
- el("pageTitle").textContent=title;
- el("pageSub").textContent=sub||descriptions[title]||"";
- el("pageContent").innerHTML="";
-}
-function addNotice(text){
- const d=document.createElement("div");
- d.className="notice";
- d.textContent=text;
- el("pageContent").appendChild(d);
-}
-function addSection(title){
- const d=document.createElement("section");
- d.className="section";
- const h=document.createElement("h3");
- h.textContent=title;
- d.appendChild(h);
- el("pageContent").appendChild(d);
- return d;
-}
-function renderTable(container,rows,columns){
- if(!rows||!rows.length){
-  const p=document.createElement("p");
-  p.className="muted";
-  p.textContent="Henüz gösterilecek kayıt bulunmuyor.";
-  container.appendChild(p);
-  return;
- }
- const wrap=document.createElement("div");wrap.className="table-wrap";
- const table=document.createElement("table");
- const head=document.createElement("tr");
- columns.forEach(c=>{const th=document.createElement("th");th.textContent=c.label;head.appendChild(th)});
- const thead=document.createElement("thead");thead.appendChild(head);table.appendChild(thead);
- const tbody=document.createElement("tbody");
- rows.forEach(row=>{
-  const tr=document.createElement("tr");
-  columns.forEach(c=>{
-   const td=document.createElement("td");
-   td.textContent=safe(row[c.key]);
-   tr.appendChild(td);
-  });
-  tbody.appendChild(tr);
- });
- table.appendChild(tbody);wrap.appendChild(table);container.appendChild(wrap);
-}
-async function fetchRows(table,limit=100){
- const {data,error}=await db.from(table).select("*").limit(limit);
- if(error)throw error;
- return data||[];
-}
-async function showTable(table,title,columns){
- const section=addSection(title);
- const loading=document.createElement("p");loading.className="muted";loading.textContent="Yükleniyor...";
- section.appendChild(loading);
- try{
-  const rows=await fetchRows(table);
-  loading.remove();
-  renderTable(section,rows,columns);
- }catch(e){
-  loading.textContent="Bu kayıtlar yüklenemedi: "+e.message;
- }
-}
-async function showApplications(){
- const section=addSection("Öğrenci başvuruları");
- const loading=document.createElement("p");loading.textContent="Başvurular yükleniyor...";
- section.appendChild(loading);
- try{
-  const rows=await fetchRows("applications");
-  loading.remove();
-  if(!rows.length){renderTable(section,[],[]);return}
-  const wrap=document.createElement("div");wrap.className="table-wrap";
-  const table=document.createElement("table");
-  table.innerHTML="<thead><tr><th>Başvuru</th><th>Öğrenci</th><th>Durum</th><th>İşlem</th></tr></thead>";
-  const body=document.createElement("tbody");
-  rows.forEach(row=>{
-   const tr=document.createElement("tr");
-   const name=row.display_name||row.name||row.username||row.user_id||"İsimsiz";
-   [row.id,name,row.status].forEach(value=>{
-    const td=document.createElement("td");td.textContent=safe(value);tr.appendChild(td);
-   });
-   const actions=document.createElement("td");
-   if(row.status==="Pending"){
-    const yes=document.createElement("button");yes.className="action approve";yes.textContent="Onayla";
-    yes.onclick=()=>reviewApplication(row.id,"Approved");
-    const no=document.createElement("button");no.className="action reject";no.textContent="Reddet";
-    no.onclick=()=>reviewApplication(row.id,"Rejected");
-    actions.append(yes,no);
-   }else actions.textContent="İşlem yapılmış";
-   tr.appendChild(actions);body.appendChild(tr);
-  });
-  table.appendChild(body);wrap.appendChild(table);section.appendChild(wrap);
- }catch(e){loading.textContent="Başvurular yüklenemedi: "+e.message}
-}
-async function reviewApplication(id,decision){
- if(!confirm(decision==="Approved"?"Bu başvuruyu onaylamak istiyor musunuz?":"Bu başvuruyu reddetmek istiyor musunuz?"))return;
- try{
-  const {error}=await db.rpc("review_application",{
-   p_application_id:id,p_decision:decision
-  });
-  if(error)throw error;
-  alert("Başvuru işlemi tamamlandı.");
-  openPage("Başvuru Yönetimi");
- }catch(e){alert("İşlem yapılamadı: "+e.message)}
-}
-async function openPage(page){
- currentPage=page;
- makeNav();
- setPage(page,descriptions[page]);
- try{
-  if(page==="Ana Sayfa"||page==="Genel Bakış"){
-   const section=addSection("Hoş geldiniz");
-   section.innerHTML+="<p>ONE STATE HELPER EĞİTİM AKADEMİSİ platformuna hoş geldiniz.</p>";
-   const cards=addSection("Hesap bilgileriniz");
-   cards.innerHTML+="<p>Hesap: "+safe(currentUser.email)+"</p><p>Rol: "+safe(currentRole)+"</p>";
-   if(isManagement())addNotice("Yönetim yetkileriniz hesabınızın rolüne göre sınırlandırılmıştır.");
-   else addNotice("Eğitim içeriklerine erişiminiz başvuru onayınıza bağlıdır.");
-   return;
-  }
-  if(page==="Başvuru Yönetimi"){
-   if(!isManagement())return addNotice("Bu bölüme erişim yetkiniz yok.");
-   return await showApplications();
-  }
-  if(page==="Üye Yönetimi"){
-   if(!isManagement())return addNotice("Bu bölüme erişim yetkiniz yok.");
-   return await showTable("profiles","Üye listesi",[
-    {key:"id",label:"Hesap ID"},{key:"role",label:"Rol"},{key:"created_at",label:"Kayıt tarihi"}
-   ]);
-  }
-  if(page==="Eğitim Takibi"||page==="Eğitim Takibim"){
-   return await showTable("lesson_progress","Eğitim ilerlemesi",[
-    {key:"student_id",label:"Öğrenci"},{key:"lesson_id",label:"Ders"},
-    {key:"video_seconds",label:"Video saniyesi"},{key:"completed",label:"Tamamlandı"},
-    {key:"updated_at",label:"Güncelleme"}
-   ]);
-  }
-  if(page==="Duyurular"||page==="Duyuru Yönetimi"){
-   return await showTable("announcements","Duyurular",[
-    {key:"title",label:"Başlık"},{key:"content",label:"İçerik"},
-    {key:"published",label:"Yayınlandı"},{key:"created_at",label:"Tarih"}
-   ]);
-  }
-  if(page==="Sınavlar"||page==="Sınav Yönetimi"){
-   if(page==="Sınav Yönetimi"&&!isManagement())return addNotice("Erişim yetkiniz yok.");
-   return await showTable("exams","Sınavlar",[
-    {key:"id",label:"Sınav ID"},{key:"title",label:"Başlık"},
-    {key:"published",label:"Yayınlandı"}
-   ]);
-  }
-  if(page==="Yönetim İşlem Geçmişi"){
-   if(!isFullManagement())return addNotice("Bu bölüm yalnızca CM ve Responsible Admin erişimine açıktır.");
-   return await showTable("management_log","Yönetim işlem geçmişi",[
-    {key:"id",label:"Kayıt"},{key:"created_at",label:"Tarih"},
-    {key:"action",label:"İşlem"},{key:"details",label:"Detay"}
-   ]);
-  }
-  if(page==="Profilim"){
-   const section=addSection("Hesap bilgilerim");
-   section.innerHTML+="<p>E-posta: "+safe(currentUser.email)+"</p><p>Rol: "+safe(currentRole)+"</p><p>Hesap ID: "+safe(currentUser.id)+"</p>";
-   return;
-  }
-  const tableMap={
-   "Helper Eğitimleri":"courses",
-   "Admin Paneli Kullanımı":"lessons",
-   "Komutlar":"lessons",
-   "Makrolar":"lessons",
-   "Sunucu Kuralları":"lessons",
-   "Ceza Rehberi":"lessons",
-   "Bilet Yönetimi":"lessons",
-   "Video Anlatımları":"lessons",
-   "Görsel Eğitimler":"lessons",
-   "Eğitim İçerik Yönetimi":"lessons",
-   "Video Yönetimi":"lessons",
-   "Raporlama":"exam_attempts"
-  };
-  if(tableMap[page]){
-   if(["Eğitim İçerik Yönetimi","Video Yönetimi","Raporlama"].includes(page)&&!isManagement())
-    return addNotice("Bu bölüme erişim yetkiniz yok.");
-   const table=tableMap[page];
-   return await showTable(table,descriptions[page],[
-    {key:"id",label:"Kayıt ID"},
-    {key:"title",label:"Başlık"},
-    {key:"description",label:"Açıklama"},
-    {key:"published",label:"Yayın durumu"}
-   ]);
-  }
-  if(page==="Rol ve Yetki Yönetimi"||page==="Sertifika Yönetimi"||page==="Sistem Ayarları"){
-   if(!isFullManagement())return addNotice("Bu bölüm yalnızca CM ve Responsible Admin erişimine açıktır.");
-   return addNotice("Bu bölümün yönetim işlemleri sonraki güvenli kurulum aşamasında etkinleştirilecektir. Şu anda değişiklik yapılmamaktadır.");
-  }
-  addNotice("Bu bölüm hazırlanıyor.");
- }catch(e){addNotice("İçerik yüklenemedi: "+e.message)}
-}
-async function enterApp(user,profile){
- currentUser=user;
- currentProfile=profile;
- currentRole=profile.role||"";
- if(!["Student","CM","Responsible Admin","Administrator"].includes(currentRole)){
-  await db.auth.signOut();
-  throw new Error("Bu hesabın akademi erişim rolü tanımlı değil.");
- }
- if(currentRole==="Student"){
-  const {data:application,error}=await db.from("applications")
-   .select("status").eq("user_id",user.id).eq("status","Approved").maybeSingle();
-  if(error)throw error;
-  if(!application)throw new Error("Öğrenci başvurunuz henüz onaylanmamış.");
- }
- el("loginScreen").classList.add("hidden");
- el("app").classList.remove("hidden");
- el("userLabel").textContent=(user.email||"Kullanıcı")+" · "+currentRole;
- makeNav();
- await openPage(isManagement()?"Genel Bakış":"Ana Sayfa");
-}
-el("loginForm").addEventListener("submit",async event=>{
- event.preventDefault();
- const button=el("loginButton");
- button.disabled=true;button.textContent="GİRİŞ YAPILIYOR...";
- el("loginMessage").classList.add("hidden");
- try{
-  const {data,error}=await db.auth.signInWithPassword({
-   email:el("email").value.trim(),
-   password:el("password").value
-  });
-  if(error)throw error;
-  const {data:profile,error:profileError}=await db.from("profiles")
-   .select("role").eq("id",data.user.id).maybeSingle();
-  if(profileError)throw profileError;
-  if(!profile)throw new Error("Kullanıcı profili bulunamadı.");
-  await enterApp(data.user,profile);
- }catch(e){
-  showMessage("loginMessage","Giriş yapılamadı: "+e.message);
-  await db.auth.signOut();
- }finally{
-  button.disabled=false;button.textContent="GİRİŞ YAP";
- }
-});
-el("logoutButton").onclick=async()=>{
- await db.auth.signOut();
- currentUser=null;currentRole="";
- el("app").classList.add("hidden");
- el("loginScreen").classList.remove("hidden");
- el("password").value="";
-};
-(async()=>{
- try{
-  const {data}=await db.auth.getSession();
-  if(data.session){
-   const user=data.session.user;
-   const {data:profile,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
-   if(error)throw error;
-   if(profile)await enterApp(user,profile);
-  }
- }catch(e){showMessage("loginMessage","Oturum kontrolü: "+e.message)}
-})();
-</script>
-</body>
-</html>
+const SUPABASE_URL='https://ijnuygaxmucnyquxhqas.supabase.co';
+const SUPABASE_KEY='sb_publishable_JpkrdGNV9ki--h4ET92aRA_eIH_hIOL';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let user=null,profile=null,role='',mode='student',active='Ana Sayfa';
+const student=[['Ana Sayfa','⌂','Eğitim merkezine genel bakış'],['Helper Eğitimleri','▣','Görev, yetki ve sorumluluklar'],['Sunucu Kuralları','⌄','Tüm RP, Chat, Alert ve birim kuralları'],['Ceza Rehberi','⚒','İhlal kodları ve ceza süreleri'],['Bilet Yönetimi','▤','Bilet karşılama, inceleme ve kapatma süreci'],['Video Anlatımları','▶','Uygulamalı video eğitimleri'],['Görsel Eğitimler','▧','Örnek görseller ve senaryolar'],['Kanıt İnceleme','⌕','Doğru kanıt kontrolü ve geçerlilik kuralları'],['Bilgi Sınavları','▤','Eğitim sonu değerlendirme testleri'],['Duyurular','◐','Güncel açıklamalar ve ekip bilgilendirmeleri'],['Eğitim İlerlemesi','↗','Tamamladığın eğitimleri ve başarı durumunu gör'],['Admin Paneli Kullanımı','⚙','Panel bölümleri ve yetkili araçları'],['Komutlar','⌘','Admin komutları ve örnekler'],['Makrolar','▥','Makro kullanımı ve örnekleri'],['Profilim','♙','Hesap ve eğitim bilgilerim']];
+const admin=[['Genel Bakış','▦'],['Başvuru Yönetimi','☷'],['Üye Yönetimi','♙'],['Eğitim İçerik Yönetimi','▣'],['Eğitim Takibi','↗'],['Video Yönetimi','▶'],['Sınav Yönetimi','▤'],['Rol ve Yetki Yönetimi','♜'],['Raporlama','▥'],['Duyuru Yönetimi','◐'],['Sertifika Yönetimi','✧'],['Yönetim İşlem Geçmişi','◷'],['Sistem Ayarları','⚙']];
+const full=['CM','Responsible Admin'];const managers=['CM','Responsible Admin','Administrator'];
+const $=id=>document.getElementById(id);function msg(id,t){$(id).textContent=t;$(id).classList.remove('hidden')};function esc(x){return String(x??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function isManager(){return managers.includes(role)}function isFull(){return full.includes(role)}
+$('studentMode').onclick=()=>setMode('student');$('adminMode').onclick=()=>setMode('admin');function setMode(m){mode=m;$('studentMode').classList.toggle('active',m==='student');$('adminMode').classList.toggle('active',m==='admin');$('displayName').classList.toggle('hidden',m==='admin');$('nameLabel').classList.toggle('hidden',m==='admin');$('applyMode').classList.toggle('hidden',m==='admin');$('loginBtn').textContent=m==='admin'?'YETKİLİ GİRİŞİ':'ÖĞRENCİ GİRİŞİ'}
+$('applyMode').onclick=async()=>{const name=$('displayName').value.trim(),email=$('email').value.trim(),pw=$('password').value;if(!/^Helper\s+.+/i.test(name))return msg('loginMsg','İsim Helper Nexus biçiminde olmalıdır.');if(!email||pw.length<8)return msg('loginMsg','Başvuru hesabı için e-posta ve en az 8 karakterli şifre girin.');try{const {data,error}=await sb.auth.signUp({email,password:pw});if(error)throw error;if(!data.user)throw Error('Hesap oluşturulamadı.');const {error:ae}=await sb.from('applications').insert({user_id:data.user.id,display_name:name,status:'Pending'});if(ae)throw ae;msg('loginMsg','Başvurunuz alındı. Yönetim onayından sonra eğitim erişimi açılacaktır. E-posta doğrulaması istenirse e-postanızı kontrol edin.')}catch(e){msg('loginMsg','Başvuru gönderilemedi: '+e.message)}};
+$('forgot').onclick=async()=>{const email=$('email').value.trim();if(!email)return msg('loginMsg','Önce e-posta adresinizi yazın.');const {error}=await sb.auth.resetPasswordForEmail(email);msg('loginMsg',error?'Şifre sıfırlama gönderilemedi: '+error.message:'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.')};
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginBtn').disabled=true;$('loginBtn').textContent='KONTROL EDİLİYOR...';try{const {data,error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;const {data:p,error:pe}=await sb.from('profiles').select('role').eq('id',data.user.id).maybeSingle();if(pe)throw pe;if(!p)throw Error('Profil kaydı bulunamadı.');user=data.user;profile=p;role=p.role;if(mode==='admin'&&!managers.includes(role))throw Error('Bu hesap yetkili girişine tanımlı değil.');if(!['Student',...managers].includes(role))throw Error('Bu hesabın akademi rolü tanımlı değil.');if(role==='Student'){const {data:a,error:ae}=await sb.from('applications').select('status').eq('user_id',user.id).eq('status','Approved').maybeSingle();if(ae)throw ae;if(!a)throw Error('Başvurunuz henüz onaylanmamış.')}await enter()}catch(e){await sb.auth.signOut();msg('loginMsg','Giriş yapılamadı: '+e.message)}finally{$('loginBtn').disabled=false;$('loginBtn').textContent=mode==='admin'?'YETKİLİ GİRİŞİ':'ÖĞRENCİ GİRİŞİ'}};
+async function enter(){ $('login').classList.add('hidden');$('site').classList.remove('hidden');$('welcome').textContent='Hoş geldin, '+(user.email||'Akademi üyesi');$('roleline').textContent='Hesap rolü: '+role+' · '+(isManager()?'Yönetim paneli':'Öğrenci paneli');buildNav();render('Ana Sayfa')}
+function buildNav(){let items=[...student];if(isManager())items=[...items,...admin];$('nav').innerHTML=items.map(([n,ic])=>`<button class="tab ${active===n?'active':''}" data-page="${esc(n)}">${ic} ${esc(n)}</button>`).join('');$('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>render(b.dataset.page))}
+function tilePage(){return `<div class="grid">${student.filter(x=>x[0]!=='Ana Sayfa').map(([n,ic,d])=>`<button class="tile" data-open="${esc(n)}"><div class="ico">${ic}</div><strong>${esc(n)}</strong><span>${esc(d)}</span></button>`).join('')}</div>`}
+function panel(title,body){return `<section class="panel"><h3>${esc(title)}</h3>${body}</section>`}function table(rows,cols){if(!rows.length)return '<div class="empty">Henüz kayıt bulunmuyor.</div>';return `<div class="tablewrap"><table><thead><tr>${cols.map(c=>`<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c[0]])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+async function rows(tableName){const {data,error}=await sb.from(tableName).select('*').limit(150);if(error)throw error;return data||[]}
+async function loadTable(t,cols,title){try{return panel(title,table(await rows(t),cols))}catch(e){return panel(title,'<div class="notice">Veriler yüklenemedi: '+esc(e.message)+'</div>')}}
+async function render(page){active=page;buildNav();$('content').innerHTML='<div class="muted">Yükleniyor...</div>';let html='';try{
+if(page==='Ana Sayfa'||page==='Genel Bakış'){if(isManager()){const [apps,profiles,progress,attempts]=await Promise.all([rows('applications'),rows('profiles'),rows('lesson_progress'),rows('exam_attempts')]);const pending=apps.filter(x=>x.status==='Pending').length;html=`<div class="stats"><div class="stat"><small>Toplam hesap</small><b>${profiles.length}</b></div><div class="stat"><small>Başvuru</small><b>${apps.length}</b></div><div class="stat"><small>Bekleyen başvuru</small><b>${pending}</b></div><div class="stat"><small>Eğitim kayıtları</small><b>${progress.length}</b></div><div class="stat"><small>Sınav denemeleri</small><b>${attempts.length}</b></div></div>`+panel('Yönetim merkezi','Başvuru, öğrenci ve eğitim süreçlerini üst menüden yönetin.');}else{html=tilePage()+panel('Eğitim durumum','Eğitim ilerlemesi ve duyurular için ilgili bölümleri açın.')} }
+else if(page==='Başvuru Yönetimi'){if(!isManager())throw Error('Yetkiniz yok.');const a=await rows('applications');html=panel('Başvurular',a.length?`<div class="tablewrap"><table><thead><tr><th>İsim</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc(x.display_name||x.name||x.user_id)}</td><td><span class="pill">${esc(x.status)}</span></td><td>${x.status==='Pending'?`<button class="btn" data-review="${esc(x.id)}" data-decision="Approved">Onayla</button> <button class="btn danger" data-review="${esc(x.id)}" data-decision="Rejected">Reddet</button>`:'—'}</td></tr>`).join('')}</tbody></table></div>`:'Henüz başvuru yok.');}
+else if(page==='Üye Yönetimi'){if(!isManager())throw Error('Yetkiniz yok.');html=await loadTable('profiles',[['id','Hesap ID'],['role','Rol']], 'Üyeler')}
+else if(page==='Eğitim Takibi'||page==='Eğitim İlerlemesi'){html=await loadTable('lesson_progress',[['student_id','Öğrenci'],['lesson_id','Ders'],['video_seconds','Video saniyesi'],['completed','Tamamlandı'],['updated_at','Güncelleme']], 'Eğitim ilerlemesi')}
+else if(page==='Duyurular'||page==='Duyuru Yönetimi'){html=await loadTable('announcements',[['title','Başlık'],['content','İçerik'],['published','Yayınlandı'],['created_at','Tarih']], 'Duyurular')}
+else if(page==='Sınavlar'||page==='Bilgi Sınavları'||page==='Sınav Yönetimi'){html=await loadTable('exams',[['id','Sınav ID'],['title','Başlık'],['published','Yayınlandı']], 'Sınavlar')}
+else if(page==='Yönetim İşlem Geçmişi'){if(!isFull())throw Error('Bu bölüm yalnızca CM ve Responsible Admin içindir.');html=await loadTable('management_log',[['id','Kayıt'],['created_at','Tarih'],['action','İşlem']], 'İşlem geçmişi')}
+else if(page==='Profilim'){html=panel('Profilim',`E-posta: ${esc(user.email)}<br>Rol: ${esc(role)}<br>Hesap: ${esc(user.id)}`)}
+else if(page==='Rol ve Yetki Yönetimi'||page==='Sistem Ayarları'||page==='Sertifika Yönetimi'){if(!isFull())throw Error('Bu bölüm yalnızca CM ve Responsible Admin içindir.');html=panel(page,'Bu modül için mevcut veritabanında güvenli yönetim işlemi henüz tanımlı değil.');}
+else if(page==='Raporlama'){if(!isManager())throw Error('Yetkiniz yok.');html=await loadTable('exam_attempts',[['student_id','Öğrenci'],['exam_id','Sınav'],['score','Puan'],['passed','Başarılı'],['created_at','Tarih']], 'Sınav raporları')}
+else if(page==='Eğitim İçerik Yönetimi'||page==='Video Yönetimi'){if(!isManager())throw Error('Yetkiniz yok.');html=await loadTable('lessons',[['id','Ders ID'],['title','Başlık'],['published','Yayınlandı']], 'Eğitim içerikleri')}
+else if(page==='Helper Eğitimleri'||page==='Admin Paneli Kullanımı'||page==='Komutlar'||page==='Makrolar'||page==='Sunucu Kuralları'||page==='Ceza Rehberi'||page==='Bilet Yönetimi'||page==='Video Anlatımları'||page==='Görsel Eğitimler'||page==='Kanıt İnceleme'){html=await loadTable('lessons',[['title','Başlık'],['content','İçerik'],['video_url','Video']],page)}
+else{html=panel(page,'Bu bölüm için henüz içerik eklenmemiş. Yönetim tarafından yayınlanan içerikler burada görüntülenecektir.')}
+}catch(e){html=panel('Bilgi','<div class="notice">'+esc(e.message)+'</div>')}$('content').innerHTML=html;$('content').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>render(b.dataset.open));$('content').querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>review(b.dataset.review,b.dataset.decision));}
+async function review(id,decision){if(!confirm(decision==='Approved'?'Başvuru onaylansın mı?':'Başvuru reddedilsin mi?'))return;try{const {error}=await sb.rpc('review_application',{p_application_id:id,p_decision:decision});if(error)throw error;alert('Başvuru işlemi tamamlandı.');render('Başvuru Yönetimi')}catch(e){alert('İşlem yapılamadı: '+e.message)}}
+$('search').oninput=e=>{const q=e.target.value.toLocaleLowerCase('tr');$('content').querySelectorAll('[data-open]').forEach(b=>b.classList.toggle('hidden',!b.textContent.toLocaleLowerCase('tr').includes(q)))};
+$('logout').onclick=async()=>{await sb.auth.signOut();location.reload()};
+(async()=>{const {data}=await sb.auth.getSession();if(data.session){user=data.session.user;const {data:p}=await sb.from('profiles').select('role').eq('id',user.id).maybeSingle();if(p){profile=p;role=p.role;if(role==='Student'){const {data:a}=await sb.from('applications').select('status').eq('user_id',user.id).eq('status','Approved').maybeSingle();if(!a)return}await enter()}}})();
+</script></body></html>
