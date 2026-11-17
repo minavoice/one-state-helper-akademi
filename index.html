@@ -1,36 +1,46 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ONE STATE | Helper Eğitim Akademisi</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;min-height:100vh;background:#101010;color:#fff;
+ margin:0;min-height:100vh;background:#0d0d0d;color:#fff;
  font-family:Arial,sans-serif;display:flex;align-items:center;
  justify-content:center;padding:20px
 }
 .container{
- width:100%;max-width:420px;background:#1b1b1b;
- border:1px solid #393225;border-radius:18px;
+ width:100%;max-width:430px;background:#191919;
+ border:1px solid #9c7938;border-radius:18px;
  padding:30px 24px;text-align:center;
- box-shadow:0 15px 45px #0008
+ box-shadow:0 15px 45px #0009
 }
 .logo{font-size:42px;margin-bottom:10px}
 h1{font-size:23px;color:#d8b45a;margin:8px 0}
-.subtitle{color:#aaa;font-size:13px;line-height:1.6;margin-bottom:28px}
+h2{font-size:17px;margin:12px 0}
+.subtitle{color:#aaa;font-size:13px;line-height:1.6;margin-bottom:25px}
 input{
  width:100%;padding:15px;margin:8px 0;
- border:1px solid #444;background:#111;color:white;
+ border:1px solid #444;background:#101010;color:white;
  border-radius:9px;font-size:15px
 }
 button{
  width:100%;padding:15px;margin-top:15px;
  background:#c6a34e;color:#111;border:0;
- border-radius:9px;font-weight:bold;font-size:15px
+ border-radius:9px;font-weight:bold;font-size:15px;
+ cursor:pointer
 }
-.note{color:#888;font-size:12px;margin-top:22px;line-height:1.5}
+button:disabled{opacity:.6}
+.message{
+ display:none;margin-top:18px;padding:12px;
+ border-radius:8px;font-size:13px;line-height:1.5;
+ background:#292929;color:#eee;overflow-wrap:anywhere
+}
+.note{color:#888;font-size:12px;margin-top:22px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -39,23 +49,102 @@ button{
  <h1>ONE STATE TR</h1>
  <h2>HELPER EĞİTİM AKADEMİSİ</h2>
  <p class="subtitle">
-  Yönetim ve Helper eğitim platformuna hoş geldiniz.
+  Eğitim platformuna hoş geldiniz.<br>
   Devam etmek için hesabınızla giriş yapın.
  </p>
+
  <form id="loginForm">
-  <input type="email" placeholder="E-posta adresiniz" required>
-  <input type="password" placeholder="Şifreniz" required>
-  <button type="submit">GİRİŞ YAP</button>
+  <input id="email" type="email" placeholder="E-posta adresiniz" required>
+  <input id="password" type="password" placeholder="Şifreniz" required>
+  <button id="loginButton" type="submit">GİRİŞ YAP</button>
  </form>
+
+ <div id="message" class="message"></div>
+
  <p class="note">
-  Hesabınız yoksa eğitim başvurusu için yönetim onayını bekleyin.
-  <br>ONE STATE HELPER EĞİTİM AKADEMİSİ
+  Eğitim erişimi yönetim onayına bağlıdır.<br>
+  ONE STATE HELPER EĞİTİM AKADEMİSİ
  </p>
 </div>
-<script const SUPABASE_URL = "https://ijnuygaxmucnyquxhqas.supabase.co";
-document.getElementById("loginForm").addEventListener("submit",function(e){
- e.preventDefault();
- alert("const SUPABASE_KEY = "sb_publishable_JpkrdGNV9ki--h4ET92aRA_eIH_hIOL";");
+
+<script>
+const SUPABASE_URL = "https://ijnuygaxmucnyquxhqas.supabase.co";
+const SUPABASE_KEY = "sb_publishable_JpkrdGNV9ki--h4ET92aRA_eIH_hIOL";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const form = document.getElementById("loginForm");
+const button = document.getElementById("loginButton");
+const message = document.getElementById("message");
+
+function showMessage(text) {
+  message.style.display = "block";
+  message.textContent = text;
+}
+
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  button.disabled = true;
+  button.textContent = "GİRİŞ YAPILIYOR...";
+  message.style.display = "none";
+
+  try {
+    const { data, error } = await db.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) throw error;
+
+    const { data: profile, error: profileError } = await db
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (!profile) {
+      await db.auth.signOut();
+      throw new Error("Hesap profili bulunamadı. Yönetimle iletişime geçin.");
+    }
+
+    const role = profile.role;
+
+    if (role === "Student") {
+      const { data: application, error: applicationError } = await db
+        .from("applications")
+        .select("status")
+        .eq("user_id", data.user.id)
+        .eq("status", "Approved")
+        .maybeSingle();
+
+      if (applicationError) throw applicationError;
+
+      if (!application) {
+        await db.auth.signOut();
+        throw new Error("Eğitim erişiminiz henüz onaylanmamış.");
+      }
+    }
+
+    showMessage(
+      "Giriş başarılı. Hesap rolünüz: " + role +
+      ". Panel ekranlarının bağlantısı henüz tamamlanmadı."
+    );
+
+  } catch (error) {
+    showMessage("Giriş yapılamadı: " + error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "GİRİŞ YAP";
+  }
 });
 </script>
 </body>
